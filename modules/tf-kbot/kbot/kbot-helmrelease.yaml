@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: kbot
+  namespace: kbot
+spec:
+  chart:
+    spec:
+      chart: ./helm
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: kbot
+  interval: 1m0s
+  valuesFrom:
+    - kind: Secret
+      name: kbot-token
+      valuesKey: token
+      targetPath: secret.token
