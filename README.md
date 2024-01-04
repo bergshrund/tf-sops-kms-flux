@@ -1,3 +1,4 @@
+# SOPS-KMS-FLUX
 ## Intro
 
 For this demo, we assume a scenario involving a simple application running as a GKE cluster workload. The ultimate goal is to utilize Flux and Helm to manage application deployment in the cluster using the GitOps approach.
