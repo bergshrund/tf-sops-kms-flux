@@ -77,8 +77,3 @@ variable "vpc_subnetwork_range" {
   type        = string
   description = "The IP address range of the kubernetes nodes in this cluster"
 }
-
-variable "kbot_token" {
-  type        = string
-  description = "Kbot token"
-}
