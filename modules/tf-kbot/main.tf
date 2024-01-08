@@ -8,7 +8,7 @@ resource "github_repository_file" "file" {
   repository          = var.repository_name
   branch              = "main"
   file                = "${var.target_path}/${var.files[count.index]}"
-  content             = replace(data.local_file.rd_file[count.index].content,"_kbot_token_value_",var.kbot_token)
+  content             = data.local_file.rd_file[count.index].content
   commit_message      = "Managed by Terraform"
   commit_author       = "Terraform User"
   commit_email        = "bergshrund@gmail.com"
