@@ -13,3 +13,8 @@ output "context" {
   value       = module.gke.name
   description = "The name of the context in kubeconfig"
 }
+
+output "location" {
+  value       = module.gke.location
+  description = "Cluster location (region if regional cluster, zone if zonal cluster)"
+}

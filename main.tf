@@ -49,3 +49,35 @@ module "tls_private_key" {
   source    = "./modules/tf-hashicorp-tls-key"
   algorithm = "RSA"
 }
+
+module "gke-workload-identity" {
+  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  name                = "kustomize-controller"
+  namespace           = "flux-system"
+  project_id          = var.project_id
+  use_existing_k8s_sa = true
+  cluster_name        = module.gke_cluster.context
+  location            = module.gke_cluster.location
+  annotate_k8s_sa     = true
+  roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
+}
+
+module "kms" {
+  source     = "./modules/tf-gcp-kms"
+  project_id = var.project_id
+  keyring    = "sops-flux"
+  location   = "global"
+  keys       = ["sops-key-flux"]
+}
+
+#resource "google_project_service" "secretmanager" {
+#  project = var.project_id
+#  service = "secretmanager.googleapis.com"
+#
+#  timeouts {
+#    create = "20m"
+#    update = "20m"
+#  }
+#
+#  disable_dependent_services = true
+#}

@@ -67,6 +67,8 @@ module "gke" {
 
   deletion_protection = false
 
+  identity_namespace = "enabled"
+
   ip_range_pods              = "${var.vpc_subnetwork_name}-pods-subnet"
   ip_range_services          = "${var.vpc_subnetwork_name}-svc-subnet"
   http_load_balancing        = true
