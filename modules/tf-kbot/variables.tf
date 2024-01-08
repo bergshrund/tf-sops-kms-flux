@@ -12,8 +12,3 @@ variable "files" {
   description = "Files that contains application resource definitions"
   type        = list(string)
 }
-
-variable "kbot_token" {
-  description = "Kbot token"
-  type        = string
-}

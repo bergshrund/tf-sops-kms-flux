@@ -41,7 +41,6 @@ module "kbot" {
   source              = "./modules/tf-kbot"
   repository_name     = var.github_repo
   target_path         = module.flux_bootstrap.flux_path
-  kbot_token          = var.kbot_token
   files = ["kbot/kbot-ns.yaml","kbot/kbot-repo.yaml","kbot/kbot-helmrelease.yaml"]
 }
 
