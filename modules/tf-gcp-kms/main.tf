@@ -25,7 +25,7 @@ resource "google_kms_key_ring" "this" {
 resource "google_kms_crypto_key" "this" {
   count           = length(var.keys)
   name            = var.keys[count.index]
-  key_ring        = google_kms_key_ring.this
+  key_ring        = google_kms_key_ring.this.id
   rotation_period = "100000s"
 
   lifecycle {
