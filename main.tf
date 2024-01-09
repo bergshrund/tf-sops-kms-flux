@@ -50,6 +50,7 @@ module "tls_private_key" {
 }
 
 module "gke-workload-identity" {
+  depends_on = [ module.flux_bootstrap.flux_id ]
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   name                = "kustomize-controller"
   namespace           = "flux-system"

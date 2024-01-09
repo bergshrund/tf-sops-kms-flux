@@ -1,15 +1,3 @@
-resource "google_project_service" "cloudkms" {
-  project = var.project_id
-  service = "cloudkms.googleapis.com"
-
-  timeouts {
-    create = "20m"
-    update = "20m"
-  }
-
-  disable_dependent_services = true
-}
-
 ##
 #  Create cloud KMS key ring
 ##

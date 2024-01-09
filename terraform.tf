@@ -8,7 +8,7 @@ terraform {
 
   backend "gcs" {
     bucket  = "data1-terraform-state"
-    prefix  = "develop/kbot"
+    prefix  = "develop/flux-kbot"
     impersonate_service_account = "devops@data1co.iam.gserviceaccount.com"
   }
 }
