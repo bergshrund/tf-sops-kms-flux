@@ -55,7 +55,7 @@ module "github_actions" {
   source              = "./modules/tf-github-files"
   repository_name     = var.github_repo
   target_path         = "."
-  files = [".github/workflows/token.yml"]
+  files = [".github/workflows/update-token.yml"]
 }
 
 module "tls_private_key" {
@@ -74,6 +74,19 @@ module "gke-workload-identity" {
   location            = module.gke_cluster.location
   annotate_k8s_sa     = true
   roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
+}
+
+module "gh_oidc" {
+  source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
+  project_id  = var.project_id
+  pool_id     = "github-pool"
+  provider_id = "github-provider"
+  sa_mapping = {
+    "github-actions" = {
+      sa_name   = "projects/data1co/serviceAccounts/github-actions@data1co.iam.gserviceaccount.com"
+      attribute = "attribute.repository/bergshrund/flux"
+    }
+  }
 }
 
 #module "kms" {

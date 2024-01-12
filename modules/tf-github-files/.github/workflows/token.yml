@@ -1,4 +1,4 @@
-name: Update token value
+name: Update secret
 on:
   workflow_dispatch:
     inputs:
@@ -7,8 +7,23 @@ on:
         type: string
 
 jobs:
-    deploy:
+    update-secter:
         runs-on: ubuntu-latest
         steps:
-          - name: Test
-            run: echo ${{ inputs.secret_id }}
+          - id: 'checkout'
+            uses: 'actions/checkout@v4'
+          
+          - id: 'auth'
+            uses: 'google-github-actions/auth@v2'
+            with:
+              workload_identity_provider: 'projects/1031337948648/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+              service_account: 'github-actions@data1co.iam.gserviceaccount.com'
+
+          - id: 'secrets'
+            uses: 'google-github-actions/get-secretmanager-secrets@v2'
+            with:
+              secrets: |-
+                token:projects/1031337948648/secrets/teletoken
+
+          - name: Create secret manifest
+            run: echo '${{ steps.secrets.outputs.token }}'
