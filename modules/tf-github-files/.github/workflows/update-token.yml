@@ -9,6 +9,9 @@ on:
 jobs:
     update-secter:
         runs-on: ubuntu-latest
+        permissions:
+          id-token: write
+          contents: write
         steps:
           - id: 'checkout'
             uses: 'actions/checkout@v4'
@@ -25,5 +28,39 @@ jobs:
               secrets: |-
                 token:projects/1031337948648/secrets/teletoken
 
-          - name: Create secret manifest
-            run: echo '${{ steps.secrets.outputs.token }}'
+          - name: 'Create secret manifest'
+            run: |
+                 echo -n '${{ steps.secrets.outputs.token }}' | base64 - > token
+                 cat <<EOF > kustomization.yaml
+                 apiVersion: kustomize.config.k8s.io/v1beta1
+                 kind: Kustomization
+                 secretGenerator:
+                 - name: kbot-token
+                   namespace: kbot
+                   options:
+                     disableNameSuffixHash: true
+                   files:
+                   - token
+                   type: "Opaque"
+                 EOF
+          - name: 'Kustomize Build' 
+            uses: karancode/kustomize-github-action@master
+            with:
+              kustomize_version: '5.3.0'
+              kustomize_build_dir: '.'
+              kustomize_output_file: "kbot-token.yaml"
+          - name: 'Sops Binary Installer'
+            uses: mdgreenwald/mozilla-sops-action@v1.4.1
+            with:
+              version: '3.8.1'
+            id: install
+          - name: 'Sops Runner'
+            run: |
+                 sops -e -gcp-kms projects/data1co/locations/global/keyRings/sops/cryptoKeys/sops-key-flux -encrypted-regex '^(token)$' kbot-token.yaml>./clusters/kbot/kbot-token-enc.yaml
+                 rm token kbot-token.yaml kustomization.yaml *.json
+          - name: 'Push ecrypted manifest'
+            run: |
+                 git config user.name github-actions
+                 git config user.email github-actions@github.com
+                 git commit -am "update kbot-token-enc.yaml"
+                 git push

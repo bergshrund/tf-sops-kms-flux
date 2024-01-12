@@ -78,7 +78,8 @@ variable "github_actions_service_account_iam_roles" {
   description = "List of IAM roles to assign to the github actions service account."
   type = list(string)
   default = [
-    "roles/secretmanager.secretAccessor"
+    "roles/secretmanager.secretAccessor",
+    "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   ]
 }
 
