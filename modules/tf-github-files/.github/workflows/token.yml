@@ -1,6 +1,6 @@
 name: Update token value
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       secret_id:
         required: true
