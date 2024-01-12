@@ -58,7 +58,6 @@ module "github_actions" {
   files = [".github/workflows/token.yml"]
 }
 
-
 module "tls_private_key" {
   source    = "./modules/tf-hashicorp-tls-key"
   algorithm = "RSA"

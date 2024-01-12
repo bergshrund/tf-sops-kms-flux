@@ -1,0 +1,14 @@
+name: Update token value
+on:
+  workflow_call:
+    inputs:
+      secret_id:
+        required: true
+        type: string
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Test
+            run: echo ${{ inputs.secret_id }}
