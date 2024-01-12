@@ -24,11 +24,17 @@ module "gke_cluster" {
 #  source = "./modules/tf-kind-cluster"
 #}
 
+locals {
+  kubeconfig      =  module.gke_cluster.kubeconfig
+  kubeconfig_path =  module.gke_cluster.kubeconfig_path
+  context         =  module.gke_cluster.context
+}
+
 module "flux_bootstrap" {
   source              = "./modules/tf-flux-bootstrap"
-  kubeconfig_content  = module.gke_cluster.kubeconfig
-  kubeconfig_paths    = module.gke_cluster.kubeconfig_path
-  kubeconfig_context  = module.gke_cluster.context
+  kubeconfig_content  = local.kubeconfig
+  kubeconfig_paths    = local.kubeconfig_path
+  kubeconfig_context  = local.context
   github_account      = var.github_account
   github_repository   = var.github_repo
   github_access_token = var.github_access_token
@@ -38,11 +44,20 @@ module "flux_bootstrap" {
 
 module "kbot" {
   depends_on = [ module.flux_bootstrap.flux_id ]
-  source              = "./modules/tf-kbot"
+  source              = "./modules/tf-github-files"
   repository_name     = var.github_repo
   target_path         = module.flux_bootstrap.flux_path
-  files = ["kbot/kbot-ns.yaml","kbot/kbot-repo.yaml","kbot/kbot-helmrelease.yaml"]
+  files = ["kbot/kbot-ns.yaml","kbot/kbot-token-enc.yaml","kbot/kbot-repo.yaml","kbot/kbot-helmrelease.yaml"]
 }
+
+module "github_actions" {
+  depends_on = [ module.flux_bootstrap.flux_id ]
+  source              = "./modules/tf-github-files"
+  repository_name     = var.github_repo
+  target_path         = "."
+  files = [".github/workflows/token.yml"]
+}
+
 
 module "tls_private_key" {
   source    = "./modules/tf-hashicorp-tls-key"
@@ -50,8 +65,8 @@ module "tls_private_key" {
 }
 
 module "gke-workload-identity" {
-  depends_on = [ module.flux_bootstrap.flux_id ]
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  module_depends_on = [ module.flux_bootstrap ]
   name                = "kustomize-controller"
   namespace           = "flux-system"
   project_id          = var.project_id
@@ -62,10 +77,10 @@ module "gke-workload-identity" {
   roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
 }
 
-module "kms" {
-  source     = "./modules/tf-gcp-kms"
-  project_id = var.project_id
-  keyring    = "sops-flux"
-  location   = "global"
-  keys       = ["sops-key-flux"]
-}
+#module "kms" {
+#  source     = "./modules/tf-gcp-kms"
+#  project_id = var.project_id
+#  keyring    = "sops-flux"
+#  location   = "global"
+#  keys       = ["sops-key-flux"]
+#}

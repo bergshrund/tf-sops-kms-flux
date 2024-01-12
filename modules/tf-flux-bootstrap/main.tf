@@ -30,4 +30,5 @@ module "flux_github_repository" {
 resource "flux_bootstrap_git" "this" {
   depends_on = [module.flux_github_repository.github_repository_deploy_key]
   path = var.target_path
+  kustomization_override = file("${path.module}/kustomization.yaml")
 }

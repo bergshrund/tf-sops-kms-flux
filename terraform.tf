@@ -5,10 +5,4 @@ terraform {
       version = "5.42.0"
     }
   }
-
-  #backend "gcs" {
-  #  bucket  = "data1-terraform-state"
-  #  prefix  = "develop/flux-kbot"
-  #  impersonate_service_account = "devops@data1co.iam.gserviceaccount.com"
-  #}
 }

@@ -1,6 +1,6 @@
 data "local_file" "rd_file" {
   count = length(var.files)
-  filename = "./modules/tf-kbot/${var.files[count.index]}"
+  filename = "./modules/tf-github-files/${var.files[count.index]}"
 }
 
 resource "github_repository_file" "file" {
@@ -9,8 +9,8 @@ resource "github_repository_file" "file" {
   branch              = "main"
   file                = "${var.target_path}/${var.files[count.index]}"
   content             = data.local_file.rd_file[count.index].content
-  commit_message      = "Managed by Terraform"
+  commit_message      = "Added ${var.files[count.index]}"
   commit_author       = "Terraform User"
-  commit_email        = "bergshrund@gmail.com"
+  commit_email        = "terraform@gmail.com"
   overwrite_on_create = true
 }
