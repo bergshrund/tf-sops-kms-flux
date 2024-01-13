@@ -24,17 +24,11 @@ module "gke_cluster" {
 #  source = "./modules/tf-kind-cluster"
 #}
 
-locals {
-  kubeconfig      =  module.gke_cluster.kubeconfig
-  kubeconfig_path =  module.gke_cluster.kubeconfig_path
-  context         =  module.gke_cluster.context
-}
-
 module "flux_bootstrap" {
   source              = "./modules/tf-flux-bootstrap"
-  kubeconfig_content  = local.kubeconfig
-  kubeconfig_paths    = local.kubeconfig_path
-  kubeconfig_context  = local.context
+  kubeconfig_content  = module.gke_cluster.kubeconfig
+  kubeconfig_paths    = module.gke_cluster.kubeconfig_path
+  kubeconfig_context  = module.gke_cluster.context
   github_account      = var.github_account
   github_repository   = var.github_repo
   github_access_token = var.github_access_token
@@ -42,20 +36,36 @@ module "flux_bootstrap" {
   public_key          = module.tls_private_key.public_key_openssh
 }
 
-module "kbot" {
-  depends_on = [ module.flux_bootstrap.flux_id ]
-  source              = "./modules/tf-github-files"
-  repository_name     = var.github_repo
-  target_path         = module.flux_bootstrap.flux_path
-  files = ["kbot/kbot-ns.yaml","kbot/kbot-repo.yaml","kbot/kbot-helmrelease.yaml"]
+module "gh_oidc" {
+  source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
+  project_id  = var.project_id
+  pool_id     = "github-pool"
+  provider_id = "github-provider"
+  sa_mapping = {
+    "github-actions" = {
+      sa_name   = "projects/data1co/serviceAccounts/github-actions@data1co.iam.gserviceaccount.com"
+      attribute = "attribute.repository/bergshrund/flux"
+    }
+  }
 }
 
-module "github_actions" {
-  depends_on = [ module.flux_bootstrap.flux_id ]
-  source              = "./modules/tf-github-files"
+module "kbot" {
+  depends_on = [ module.flux_bootstrap.flux_id, module.gh_oidc.pool_name ]
+  source              = "./modules/tf-github-init"
   repository_name     = var.github_repo
   target_path         = "."
-  files = [".github/workflows/update-token.yml"]
+  files = ["README.md",".github/workflows/update-token.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-ns.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-repo.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-helmrelease.yaml"]
+
+  github_actions_vars = {
+    gsm_secret_name = "teletoken"
+    secret_name = "kbot-token"
+    secret_namespace = "kbot"
+  }
+
+  github_actions_secrets = {
+    workload_identity_provider = "projects/1031337948648/locations/global/workloadIdentityPools/${module.gh_oidc.pool_name}/providers/${module.gh_oidc.provider_name}"
+    workload_identity_sa = "github-actions@data1co.iam.gserviceaccount.com"
+  }
 }
 
 module "tls_private_key" {
@@ -76,23 +86,12 @@ module "gke-workload-identity" {
   roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
 }
 
-module "gh_oidc" {
-  source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
-  project_id  = var.project_id
-  pool_id     = "github-pool"
-  provider_id = "github-provider"
-  sa_mapping = {
-    "github-actions" = {
-      sa_name   = "projects/data1co/serviceAccounts/github-actions@data1co.iam.gserviceaccount.com"
-      attribute = "attribute.repository/bergshrund/flux"
-    }
-  }
-}
+
 
 #module "kms" {
 #  source     = "./modules/tf-gcp-kms"
 #  project_id = var.project_id
-#  keyring    = "sops-flux"
+#  keyring    = "sops"
 #  location   = "global"
 #  keys       = ["sops-key-flux"]
 #}

@@ -12,3 +12,15 @@ variable "files" {
   description = "Files that contains application resource definitions"
   type        = list(string)
 }
+
+variable "github_actions_vars" {
+  description = "The list of githubActions variables"
+  type        = map
+}
+
+variable "github_actions_secrets" {
+  description = "The list of githubActions secrets"
+  type        = map
+}
+
+

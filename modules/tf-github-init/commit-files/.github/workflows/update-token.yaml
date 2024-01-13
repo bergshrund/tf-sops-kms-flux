@@ -1,9 +1,13 @@
 name: Update secret
 on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/update-token.yaml'
   workflow_dispatch:
     inputs:
-      secret_id:
-        required: true
+      gsm_secret_name:
         type: string
 
 jobs:
