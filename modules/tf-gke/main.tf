@@ -39,19 +39,6 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.gke.ca_certificate)
 }
 
-resource "google_service_account" "github_actions_service_account" {
-  account_id   = "github-actions"
-  display_name = "Github actions service account"
-  project      = var.project_id
-}
-
-resource "google_project_iam_member" "github_actions_service_account" {
-  count   = length(var.github_actions_service_account_iam_roles)
-  project = var.project_id
-  role    = element(var.github_actions_service_account_iam_roles, count.index)
-  member  = "serviceAccount:${google_service_account.github_actions_service_account.email}"
-}
-
 resource "google_service_account" "cluster_service_account" {
   account_id   = "default-${var.cluster_name}"
   display_name = "Kubernetes cluster default service account"

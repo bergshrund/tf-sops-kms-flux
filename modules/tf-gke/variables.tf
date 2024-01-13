@@ -74,15 +74,6 @@ variable "cluster_service_account_iam_roles" {
   ]
 }
 
-variable "github_actions_service_account_iam_roles" {
-  description = "List of IAM roles to assign to the github actions service account."
-  type = list(string)
-  default = [
-    "roles/secretmanager.secretAccessor",
-    "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  ]
-}
-
 variable "cluster_service_account_custom_iam_roles" {
   description = "List of arbitrary additional IAM roles to attach to the service account on the Kubernetes clusters nodes."
   type        = list(string)
