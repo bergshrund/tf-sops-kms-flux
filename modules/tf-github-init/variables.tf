@@ -27,7 +27,6 @@ variable "github_actions_vars" {
   description = "The list of githubActions variables"
   type        = map
   default     = {
-    gsm_secret_name = "teletoken"
     secret_name = "kbot-token"
     secret_namespace = "kbot"
   }

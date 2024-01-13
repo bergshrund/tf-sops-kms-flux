@@ -6,9 +6,6 @@ on:
     paths:
       - '.github/workflows/update-token.yaml'
   workflow_dispatch:
-    inputs:
-      gsm_secret_name:
-        type: string
 
 jobs:
     update-secter:
@@ -23,14 +20,14 @@ jobs:
           - id: 'auth'
             uses: 'google-github-actions/auth@v2'
             with:
-              workload_identity_provider: 'projects/1031337948648/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-              service_account: 'github-actions@data1co.iam.gserviceaccount.com'
+              workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+              service_account: ${{ secrets.WORKLOAD_IDENTITY_SA }}
 
           - id: 'secrets'
             uses: 'google-github-actions/get-secretmanager-secrets@v2'
             with:
               secrets: |-
-                token:projects/1031337948648/secrets/teletoken
+                token:${{ secrets.GSM_SECRET }}
 
           - name: 'Create secret manifest'
             run: |
@@ -39,8 +36,8 @@ jobs:
                  apiVersion: kustomize.config.k8s.io/v1beta1
                  kind: Kustomization
                  secretGenerator:
-                 - name: kbot-token
-                   namespace: kbot
+                 - name: ${{ vars.SECRET_NAME }}
+                   namespace: ${{ vars.SECRET_NAMESPACE }}
                    options:
                      disableNameSuffixHash: true
                    files:
@@ -52,7 +49,7 @@ jobs:
             with:
               kustomize_version: '5.3.0'
               kustomize_build_dir: '.'
-              kustomize_output_file: "kbot-token.yaml"
+              kustomize_output_file: "${{ vars.SECRET_NAME }}.yaml"
           - name: 'Sops Binary Installer'
             uses: mdgreenwald/mozilla-sops-action@v1.4.1
             with:
@@ -60,11 +57,12 @@ jobs:
             id: install
           - name: 'Sops Runner'
             run: |
-                 sops -e -gcp-kms projects/data1co/locations/global/keyRings/sops/cryptoKeys/sops-key-flux -encrypted-regex '^(token)$' kbot-token.yaml>./clusters/kbot/kbot-token-enc.yaml
-                 rm token kbot-token.yaml kustomization.yaml *.json
+                 sops -e -gcp-kms ${{ secrets.KMS_CRYPTO_KEY }} -encrypted-regex '^(token)$' ${{ vars.SECRET_NAME }}.yaml>./clusters/${{ vars.SECRET_NAMESPACE }}/${{ vars.SECRET_NAME }}-enc.yaml
+                 rm token ${{ vars.SECRET_NAME }}.yaml kustomization.yaml *.json
           - name: 'Push ecrypted manifest'
             run: |
                  git config user.name github-actions
                  git config user.email github-actions@github.com
-                 git commit -am "update kbot-token-enc.yaml"
+                 git add clusters/${{ vars.SECRET_NAMESPACE }}/${{ vars.SECRET_NAME }}-enc.yaml
+                 git commit -m "update ${{ vars.SECRET_NAME }}-enc.yaml"
                  git push
