@@ -58,17 +58,3 @@ kbot_token = "NjhgadfuighkjsdfgujkjUjhretjhkdDRNbnE5X0UtWQ=="
 1. Creating a new GKE cluster.
 2. Bootstrapping Flux and creating a new GitHub repository where Flux keeps tracked artifacts and resource definitions.
 3. Deploying the kbot application by adding new resource definitions to the Flux repo.
-
-```
-resource "google_project_service" "secretmanager" {
-  project = var.project_id
-  service = "secretmanager.googleapis.com"
-
-  timeouts {
-    create = "20m"
-    update = "20m"
-  }
-
-  disable_dependent_services = true
-}
-```
