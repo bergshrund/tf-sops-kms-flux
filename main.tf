@@ -45,6 +45,9 @@ module "kbot" {
   repository_name     = var.github_repo
   target_path         = "."
 
+  kms_crypto_key      = var.kms_crypto_key
+  gsm_secret          = var.kms_crypto_key
+
   commit-files = ["README.md",".github/workflows/update-token.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-ns.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-repo.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-helmrelease.yaml"]
 }
 

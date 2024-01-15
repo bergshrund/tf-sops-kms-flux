@@ -33,8 +33,8 @@ locals {
   github_actions_secrets = {
     workload_identity_provider = module.gh_oidc.provider_name
     workload_identity_sa = google_service_account.github_actions_service_account.email
-    kms_crypto_key = "projects/data1co/locations/global/keyRings/sops/cryptoKeys/sops-key-flux"
-    gsm_secret = "projects/1031337948648/secrets/teletoken"
+    kms_crypto_key = var.kms_crypto_key
+    gsm_secret = var.gsm_secret
   }
 }
 

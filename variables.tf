@@ -77,3 +77,13 @@ variable "vpc_subnetwork_range" {
   type        = string
   description = "The IP address range of the kubernetes nodes in this cluster"
 }
+
+variable "kms_crypto_key" {
+  type        = string
+  description = "The KMS crypto key full resource name is in the form projects/<project-is>/locations/<location>/keyRings/<key-ring-name>/cryptoKeys/<key-name>"
+}
+
+variable "gsm_secret" {
+  type        = string
+  description = ""
+}

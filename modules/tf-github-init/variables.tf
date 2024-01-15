@@ -58,3 +58,13 @@ variable "workload_identity_pool_id" {
   default     = "github-pool"
   description = "Workload Identity Pool ID"
 }
+
+variable "kms_crypto_key" {
+  type        = string
+  description = "The KMS crypto key full resource name is in the form projects/<project-is>/locations/<location>/keyRings/<key-ring-name>/cryptoKeys/<key-name>"
+}
+
+variable "gsm_secret" {
+  type        = string
+  description = "The Google Secret Manager secret full resource name in the form projects/<project-id>/secrets/<secret-name>"
+}
