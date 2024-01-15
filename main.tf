@@ -28,7 +28,7 @@ module "gke-workload-identity" {
   use_existing_k8s_sa = true
   cluster_name        = module.gke_cluster.context
   location            = module.gke_cluster.location
-  annotate_k8s_sa     = true
+  annotate_k8s_sa     = false
   roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
 }
 
