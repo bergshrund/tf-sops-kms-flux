@@ -34,5 +34,5 @@ data "local_file" "kustomization" {
 resource "flux_bootstrap_git" "this" {
   depends_on = [module.flux_github_repository.github_repository_deploy_key]
   path = var.target_path
-  kustomization_override = replace(data.local_file.kustomization,"_gcp_workload_identity_sa_",var.workload_identity_sa)
+  kustomization_override = replace(data.local_file.kustomization.content,"_gcp_workload_identity_sa_",var.workload_identity_sa)
 }
