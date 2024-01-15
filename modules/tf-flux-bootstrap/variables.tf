@@ -44,3 +44,8 @@ variable "target_path" {
   default     = "clusters"
   description = "Flux manifests subdirectory"
 }
+
+variable "workload_identity_sa" {
+  type        = string
+  description = "Workload Identity Service Account email"
+}

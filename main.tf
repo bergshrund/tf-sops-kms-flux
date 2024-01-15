@@ -20,20 +20,29 @@ module "gke_cluster" {
   node_poll_size = var.node_poll_size
 }
 
-#module "kind_cluster" {
-#  source = "./modules/tf-kind-cluster"
-#}
+module "gke-workload-identity" {
+  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  name                = "kustomize-controller"
+  namespace           = "flux-system"
+  project_id          = var.project_id
+  use_existing_k8s_sa = true
+  cluster_name        = module.gke_cluster.context
+  location            = module.gke_cluster.location
+  annotate_k8s_sa     = true
+  roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
+}
 
 module "flux_bootstrap" {
-  source              = "./modules/tf-flux-bootstrap"
-  kubeconfig_content  = module.gke_cluster.kubeconfig
-  kubeconfig_paths    = module.gke_cluster.kubeconfig_path
-  kubeconfig_context  = module.gke_cluster.context
-  github_account      = var.github_account
-  github_repository   = var.github_repo
-  github_access_token = var.github_access_token
-  private_key         = module.tls_private_key.private_key_pem
-  public_key          = module.tls_private_key.public_key_openssh
+  source               = "./modules/tf-flux-bootstrap"
+  kubeconfig_content   = module.gke_cluster.kubeconfig
+  kubeconfig_paths     = module.gke_cluster.kubeconfig_path
+  kubeconfig_context   = module.gke_cluster.context
+  github_account       = var.github_account
+  github_repository    = var.github_repo
+  github_access_token  = var.github_access_token
+  private_key          = module.tls_private_key.private_key_pem
+  public_key           = module.tls_private_key.public_key_openssh
+  workload_identity_sa = module.gke-workload-identity.gcp_service_account_email
 }
 
 module "kbot" {
@@ -46,7 +55,7 @@ module "kbot" {
   target_path         = "."
 
   kms_crypto_key      = var.kms_crypto_key
-  gsm_secret          = var.kms_crypto_key
+  gsm_secret          = var.gsm_secret
 
   commit-files = ["README.md",".github/workflows/update-token.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-ns.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-repo.yaml","${module.flux_bootstrap.flux_path}/kbot/kbot-helmrelease.yaml"]
 }
@@ -55,24 +64,3 @@ module "tls_private_key" {
   source    = "./modules/tf-hashicorp-tls-key"
   algorithm = "RSA"
 }
-
-module "gke-workload-identity" {
-  source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  module_depends_on = [ module.flux_bootstrap ]
-  name                = "kustomize-controller"
-  namespace           = "flux-system"
-  project_id          = var.project_id
-  use_existing_k8s_sa = true
-  cluster_name        = module.gke_cluster.context
-  location            = module.gke_cluster.location
-  annotate_k8s_sa     = true
-  roles               = ["roles/cloudkms.cryptoKeyEncrypterDecrypter"]
-}
-
-#module "kms" {
-#  source     = "./modules/tf-gcp-kms"
-#  project_id = var.project_id
-#  keyring    = "sops"
-#  location   = "global"
-#  keys       = ["sops-key-flux"]
-#}

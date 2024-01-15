@@ -85,5 +85,5 @@ variable "kms_crypto_key" {
 
 variable "gsm_secret" {
   type        = string
-  description = ""
+  description = "The Google Secret Manager secret full resource name in the form projects/<project-id>/secrets/<secret-name>"
 }

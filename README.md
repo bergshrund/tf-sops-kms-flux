@@ -3,7 +3,7 @@
 
 For this demo, we assume a scenario involving a simple application running as a GKE cluster workload. The ultimate goal is to utilize Flux and Helm to manage application deployment in the cluster using the GitOps approach.
 
-We will configure Flux to handle a simple app using GitRepository and HelmRelease custom resources. Flux will monitor the Git repository and automatically upgrade the Helm releases to their latest chart version. We will also use the GitHub Actions approach for automatically fetching sensitive data from Google Secret Manager and creating the application's secret during the bootstrap process. It will allow us to update the application secrets manifest every time it changes in the GSM store. We will trigger these updates manually.  
+We will configure Flux to handle a simple app using GitRepository and HelmRelease custom resources. Flux will monitor the Git repository and automatically upgrade the Helm releases to their latest chart version. We will also use the GitHub Actions approach for automatically fetching sensitive data from Google Secret Manager and creating the application's secret during the bootstrap process. It will allow us to update the application secrets manifest every time it changes in the GSM store. We will trigger these updates manually.
 
 ## Prerequisites
 

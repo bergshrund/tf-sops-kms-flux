@@ -27,8 +27,12 @@ module "flux_github_repository" {
   public_key_openssh_title = "flux"
 }
 
+data "local_file" "kustomization" {
+  filename = "${path.module}/kustomization.yaml"
+}
+
 resource "flux_bootstrap_git" "this" {
   depends_on = [module.flux_github_repository.github_repository_deploy_key]
   path = var.target_path
-  kustomization_override = file("${path.module}/kustomization.yaml")
+  kustomization_override = replace(data.local_file.kustomization,"_gcp_workload_identity_sa_",var.workload_identity_sa)
 }
