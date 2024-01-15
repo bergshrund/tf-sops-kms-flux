@@ -23,6 +23,8 @@ backend "gcs" {
 
 Additionally, we'll use a GitHub account and a personal access token that can create repositories.
 
+IMPORTANT: The KMS crypto key value and the Google Secret Manager secret must exist and be passed into Terraform as input values (see the example below in var.tfvars). The Terraform code does not create KMS and GSM cluster services.
+
 ## Bootstrapping Flux and Application
 
 All input variable values will be placed in the `vars.tfvars` file, and Terraform will be run with the option `-var-file`:
@@ -50,6 +52,8 @@ node_pool_size = 2
 github_account      = "myaccount"
 github_access_token = "ggt_jhdfgiujkjsdhfgNOBR5M0pRhUGdL4Vaecx"
 github_repo         = "flux"
+kms_crypto_key      = "projects/test-project/locations/global/keyRings/sops/cryptoKeys/sops-key-flux"
+gsm_secret          = "projects/10323116247621/secrets/teletoken"
 ```
 
 ### Bootstrapping will include the following main steps:
